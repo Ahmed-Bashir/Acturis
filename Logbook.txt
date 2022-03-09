@@ -1,0 +1,112 @@
+https://stackoverflow.com/questions/52918000/ihttpclientfactory-in-net-core-2-1-console-app-references-system-net-http
+https://stackoverflow.com/questions/12300898/is-it-possible-to-set-a-breakpoint-in-anonymous-functions - due to defered execution, the method has to fire if you want
+to step into it. invoke httpclientfactory.create() method 
+https://stackoverflow.com/questions/67069433/how-to-set-dynamic-variable-in-postman
+https://stackoverflow.com/questions/16759748/xmlattribute-xmltext-cannot-be-used-to-encode-complex-types
+https://stackoverflow.com/questions/10518372/how-to-deserialize-xml-to-object
+https://stackoverflow.com/questions/12672512/xmlns-was-not-expected-there-is-an-error-in-xml-document-2-2/12672746
+https://stackoverflow.com/questions/30858890/how-to-use-httpclient-to-post-with-authentication/30862845
+https://stackoverflow.com/questions/25352462/how-to-send-xml-content-with-httpclient-postasync
+https://stackoverflow.com/questions/6297249/remove-encoding-from-xmlserializer
+https://stackoverflow.com/questions/15149811/how-to-wait-for-async-method-to-complete
+https://stackoverflow.com/questions/7646974/cannot-serialize-member-xxx-of-type-system-nullable1system-decimal-xmlattr
+https://stackoverflow.com/questions/60573/xmlserializer-there-was-an-error-reflecting-type
+https://stackoverflow.com/questions/12672512/xmlns-was-not-expected-there-is-an-error-in-xml-document-2-2/12672746
+https://stackoverflow.com/questions/1101872/how-to-set-space-on-enum
+
+USE SPECIAL PASTE IN VISUAL STUDIO INSTEAD OF THE WEBSITE
+
+<LocatePolicyResponse xmlns="">
+    <Message>
+        <ContactRef Value="595898076" />
+        <PartRef Value="4946723692" />
+        <PolicyRef Value="970737379" />
+    </Message>
+    <Results>
+        <Result Value="265" Desc="Submitted value was Read Only no update made" Code="2020491" Path="LocatePolicy/Message[0]/EffectiveDateFrom/@Value" Type="Information" />
+        <Result Value="" Desc="" Code="2020491" Type="Success" />
+    </Results>
+</LocatePolicyResponse>
+
+03/03/2022
+
+
+
+
+                var policyUploadRequest = new PolicyUploadRequest()
+                {
+
+                    MappingID = "PibEmployersLiabilityPACEY",
+
+                    AddOrUpdateContact = new AddOrUpdateContact()
+                    {
+                        OldContactNo = new OldContactNo()
+                        {
+                            Value = member.Contact.ContactNumber
+                        },
+                        ClientTitle = new ClientTitle()
+                        {
+                            Value = Convert.ToInt32(Enum.Parse(typeof(Models.Acturis.Title), member.Contact.Title.Label))
+                        },
+                        FullName = new FullName()
+                        {
+                            Value = member.Contact.FullName
+                        },
+                        ClientFirstName = new ClientFirstName()
+                        {
+
+                            Value = member.Contact.FirstName
+                        },
+                        ClientSurname = new ClientSurname()
+                        {
+                            Value = member.Contact.LastName
+                        },
+                        DateOfBirth = new DateOfBirth()
+                        {
+                            Value = Convert.ToInt32(member.Contact.DateOfBirth.ToString("yyyyMMdd"))
+                        },
+                        EmailAddress = new EmailAddress()
+                        {
+                            Value = member.Contact.EmailAddress1
+                        },
+                        WorkPhone = new WorkPhone()
+                        {
+                            Value = Convert.ToDouble(member.Contact.WorkPhone)
+                        },
+                        MobilePhone = new MobilePhone()
+                        {
+                            Value = Convert.ToInt32(member.Contact.HomeMobile)
+                        },
+                        HomePhone = new HomePhone()
+                        {
+                            Value = Convert.ToInt32(member.Contact.HomePhone)
+                        }
+
+                    },
+
+                    PolicyDetails = new PolicyDetails()
+                    {
+                        EffectiveDate = new EffectiveDate
+                        {
+                            Value = Convert.ToInt32(member.ValidFrom.ToString("yyyyMMdd"))
+                        }
+                    },
+
+                    AdditionalDetails = new AdditionalDetails()
+                    {
+                        InsurerPolicyNo = new InsurerPolicyNo()
+                        {
+                            Value = member.Contact.ContactNumber
+                        },
+                        ChildminderNanny = new ChildminderNanny()
+                        {
+                            Value = Convert.ToInt32(Enum.Parse(typeof(Models.Acturis.Grade), member.Grade.Name))
+                        },
+
+                        ERNNo = new ERNNo()
+                        {
+                            Value = 123456
+                        }
+
+                    }
+                };
