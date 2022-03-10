@@ -38,9 +38,6 @@ namespace Acturis
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.File(path)
                 .CreateLogger();
 
             Log.Information("Application starting");
@@ -122,7 +119,6 @@ namespace Acturis
 
             var config = LoadConfiguration();
             services.AddSingleton(config);
-            services.AddLogging(configure => configure.AddSerilog());
             services.AddLogging(configure => configure.AddSerilog());
 
             services.AddTransient<IActurisApiService, ActurisApiService>();

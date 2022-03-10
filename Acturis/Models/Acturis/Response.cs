@@ -35,6 +35,7 @@ namespace Acturis.Models
 
 		
 		public string EffectiveDate { get; set; }
+		public string ConNumber { get; set; }
 
 		[XmlElement(ElementName = "RfqRef")]
 		public int RfqRef { get; set; }

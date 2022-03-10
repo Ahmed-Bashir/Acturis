@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Text.Json;
 using System.Net.Http.Json;
 using System.Text;
+using System.Linq;
 
 namespace Acturis.Services
 {
@@ -37,7 +38,22 @@ namespace Acturis.Services
             _emailService = emailService;
         }
 
+        public async Task<List<Bluelight>> GetNameChangeAsync()
+        {
+            //string dateFrom = DateTime.Today.AddDays(-14).ToString("yyyy-MM-dd");
+            //string dateTo = DateTime.Now.ToString("yyyy-MM-dd");
+            string dateFrom = "2022-03-07";
+            string dateTo = "2022-03-07";
 
+            var client = _httpClientFactory.CreateClient("BluelightApi");
+            var response = await client.GetAsync(client.BaseAddress + $"/api/v1/Acturis/Memberships/NameChange?dateFrom={dateFrom}&dateTo={dateTo}");
+
+            if (!response.IsSuccessStatusCode) return new List<Bluelight>();
+
+
+            return await response.Content.ReadFromJsonAsync<List<Bluelight>>();
+
+        }
 
         public async Task<List<Bluelight>> GetMembersAsync()
         {
@@ -76,6 +92,8 @@ namespace Acturis.Services
             var client = _httpClientFactory.CreateClient("BluelightApi");
             dynamic blResponse = null;
 
+           
+
             try
             {
                 foreach (var acturisMembership in acturisMemberships)
@@ -96,10 +114,11 @@ namespace Acturis.Services
                     blResponse = JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result);
 
                     if (!response.IsSuccessStatusCode)
+                    {
+                        _logger.LogError($"Unable to post member detials with Id:{id} - StatusCode: {response.ReasonPhrase}");
 
-                    _logger.LogError($"Unable to post member detials with Id:{id} - StatusCode: {response.ReasonPhrase}");
-
-                    await _emailService.ReportError($"Unable to post member detials with Id:{id} - StatusCode: {response.ReasonPhrase}");
+                        await _emailService.ReportError($"Unable to post member detials with Id:{id} - StatusCode: {response.ReasonPhrase}");
+                    }
 
 
                 }
@@ -111,9 +130,9 @@ namespace Acturis.Services
                 await _emailService.ReportError(ex.Message);
             }
 
-            if (blResponse.Success)
+            if (blResponse.Success == true)
             {
-                _logger.LogInformation($"Member details posted to BlueLight. Success: {blResponse.Success} Id: {blResponse.Id}");
+                _logger.LogInformation($"Member details posted to BlueLight. Success: {blResponse.Success}");
             }
             else
             {
@@ -148,10 +167,13 @@ namespace Acturis.Services
                     blResponse = JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result);
 
                     if (!response.IsSuccessStatusCode)
-
+                    {
                         _logger.LogError($"Unable to post certificate pertaining to Id:{id} - StatusCode: {response.ReasonPhrase}");
 
-                    await _emailService.ReportError($"Unable to post certificate pertaining to Id:{id} - StatusCode: {response.ReasonPhrase}");
+                        await _emailService.ReportError($"Unable to post certificate pertaining to Id:{id} - StatusCode: {response.ReasonPhrase}");
+                    }
+
+                       
                 }
             }
             catch (Exception ex)
@@ -159,9 +181,10 @@ namespace Acturis.Services
                 _logger.LogError(ex.Message);
             }
 
-            if (blResponse.Success)
+
+            if (blResponse.Success == true)
             {
-                _logger.LogInformation($"Certificates posted to BlueLight. Success: {blResponse.Success} Id: {blResponse.Id}");
+                _logger.LogInformation($"Certificates posted to BlueLight. Success: {blResponse.Success}");
             }
             else
             {

@@ -13,6 +13,8 @@ https://stackoverflow.com/questions/7646974/cannot-serialize-member-xxx-of-type-
 https://stackoverflow.com/questions/60573/xmlserializer-there-was-an-error-reflecting-type
 https://stackoverflow.com/questions/12672512/xmlns-was-not-expected-there-is-an-error-in-xml-document-2-2/12672746
 https://stackoverflow.com/questions/1101872/how-to-set-space-on-enum
+https://stackoverflow.com/questions/22733845/how-to-get-the-second-last-string-in-c-sharp#:~:text=Step%201%3A%20You%20can%20Split,2'nd%20word%20from%20Last.&text=Will%20throw%20an%20exception%20if%20the%20sentence%20is%20one%20word%20long.
+https://www.codegrepper.com/code-examples/javascript/c%23+json+valuekind+%3D+object
 
 USE SPECIAL PASTE IN VISUAL STUDIO INSTEAD OF THE WEBSITE
 
