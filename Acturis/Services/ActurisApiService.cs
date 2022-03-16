@@ -39,127 +39,7 @@ namespace Acturis.Service
 
 
 
-        public async Task<List<ActurisMembership>> GetCertificatesAsync()
-        {
-
-            var client = _httpClientFactory.CreateClient("ActurisPolicyUpload");
-
-
-            // var members = await _bluelightApiService.GetMembersAsync();
-
-            var acturisMembers = new List<ActurisMembership>();
-
-            //foreach (var member in members)
-            //{
-            try
-            {
-
-                //var policyUploadRequest = new PolicyUploadRequest();
-
-                //policyUploadRequest.MappingID = "PibEmployersLiabilityPACEY";
-
-                //var addOrUpdateContact = new AddOrUpdateContact();
-                //addOrUpdateContact.OldContactNo = new OldContactNo()
-                //{
-                //    Value = member.Contact.ContactNumber
-                //};
-                //addOrUpdateContact.ClientTitle = new ClientTitle()
-                //{
-                //    Value = Convert.ToInt32(Enum.Parse(typeof(Models.Acturis.Title), member.Contact.Title.Label))
-                //};
-                //addOrUpdateContact.FullName = new FullName
-                //{
-                //    Value = member.Contact.FullName
-                //};
-                //addOrUpdateContact.ClientFirstName = new ClientFirstName()
-                //{
-                //    Value = member.Contact.FirstName
-                //};
-                //addOrUpdateContact.ClientSurname = new ClientSurname()
-                //{
-                //    Value = member.Contact.LastName
-                //};
-                //addOrUpdateContact.DateOfBirth = new DateOfBirth()
-                //{
-                //    Value = Convert.ToInt32(member.Contact.DateOfBirth.ToString("yyyyMMdd"))
-                //};
-                //addOrUpdateContact.EmailAddress = new EmailAddress()
-                //{
-                //    Value = member.Contact.EmailAddress1
-                //};
-                //addOrUpdateContact.WorkPhone = new WorkPhone() { Value = member.Contact.WorkPhone ?? "-" };
-                //addOrUpdateContact.MobilePhone = new MobilePhone() { Value = member.Contact.HomeMobile ?? "-" };
-                //addOrUpdateContact.HomePhone = new HomePhone() { Value = member.Contact.HomePhone ?? "-" };
-
-                //policyUploadRequest.AddOrUpdateContact = addOrUpdateContact;
-
-                //var policyDetails = new PolicyDetails();
-                //policyDetails.EffectiveDate = new EffectiveDate() { Value = member.ValidFrom.ToString("yyyyMMdd") };
-
-                //policyUploadRequest.PolicyDetails = policyDetails;
-
-                //var additionalDetails = new AdditionalDetails();
-                //additionalDetails.InsurerPolicyNo = new InsurerPolicyNo() { Value = member.Contact.ContactNumber };
-
-
-                //additionalDetails.ChildminderNanny = new ChildminderNanny() { Value = member.Grade.Name.GetValueFromDisplayName<Models.Acturis.Grade>() };
-
-                //additionalDetails.ERNNo = new ERNNo() { Value = member.Contact.EmployeeReferenceNumber ?? "-" };
-
-                //policyUploadRequest.AdditionalDetails = additionalDetails;
-
-
-                //var xml = Serialize(policyUploadRequest, typeof(PolicyUploadRequest));
-
-                //var content = new StringContent(xml, Encoding.UTF8, "application/xml");
-                //var response = await client.PostAsync(client.BaseAddress, content);
-                //var result = response.Content.ReadAsStringAsync().Result;
-
-                //if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
-
-                //_logger.LogInformation($"Policy for {member.Contact.ContactNumber}, uploaded.");
-
-
-                //var policyUploadResponse = Deserialize(result, typeof(Response), "Response");
-                //policyUploadResponse.EffectiveDate = policyUploadRequest.PolicyDetails.EffectiveDate.Value;
-
-                var policyUploadResponse = new Response()
-                {
-                    PolicyUploadJobID = "1b19c767-ba22-4733-8d6e-11611fb156a6",
-                    EffectiveDate = "20220309",
-                    ConNumber = "CON-11294"
-                };
-
-
-                var locatePolicy = LocatePolicyUploadAsync(policyUploadResponse).GetAwaiter().GetResult();
-
-                var locatePolicyResponse = locatePolicyAsync(locatePolicy).GetAwaiter().GetResult();
-
-                var locatePartActivityResponse = LocatePartActivityAsync(locatePolicyResponse).GetAwaiter().GetResult();
-
-                var acturisMember = GetDocumentFromActivityAsync(locatePartActivityResponse).GetAwaiter().GetResult();
-
-
-                acturisMembers.Add(acturisMember);
-
-            }
-            catch (Exception ex)
-            {
-                //_logger.LogError(ex.Message + "\n" + member.Contact.ContactNumber + " policy was not uploaded");
-                _logger.LogError(ex.Message + "\n"  + " policy was not uploaded");
-
-                // await _emailService.SendUnapprovedMembers(member, ex.Message);
-            }
-
-            //}
-
-
-
-            return acturisMembers;
-
-        }
-
-        public async Task<List<ActurisMembership>> RenewPolicyAsync()
+        public async Task UploadPoliciesAsync()
         {
 
             var client = _httpClientFactory.CreateClient("ActurisPolicyUpload");
@@ -167,12 +47,154 @@ namespace Acturis.Service
 
             var members = await _bluelightApiService.GetMembersAsync();
 
+            var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-11375") );
+
             var acturisMembers = new List<ActurisMembership>();
 
-            foreach (var member in members)
+            foreach (var member in filteredMembers)
             {
                 try
                 {
+
+
+                    var policyUploadRequest = new PolicyUploadRequest();
+
+                    policyUploadRequest.MappingID = "PibEmployersLiabilityPACEY";
+
+                    var addOrUpdateContact = new AddOrUpdateContact();
+
+                    addOrUpdateContact.OldContactNo = new OldContactNo()
+                    {
+                        Value = member.Contact.ContactNumber
+                    };
+                    addOrUpdateContact.ClientTitle = new ClientTitle()
+                    {
+                        Value = Convert.ToInt32(Enum.Parse(typeof(Models.Acturis.Title), member.Contact.Title.Label))
+                    };
+                    addOrUpdateContact.FullName = new FullName
+                    {
+                        Value = member.Contact.FullName
+                    };
+                    addOrUpdateContact.ClientFirstName = new ClientFirstName()
+                    {
+                        Value = member.Contact.FirstName
+                    };
+                    addOrUpdateContact.ClientSurname = new ClientSurname()
+                    {
+                        Value = member.Contact.LastName
+                    };
+                    addOrUpdateContact.DateOfBirth = new DateOfBirth()
+                    {
+                        Value = Convert.ToInt32(member.Contact.DateOfBirth.ToString("yyyyMMdd"))
+                    };
+                    addOrUpdateContact.EmailAddress = new EmailAddress()
+                    {
+                        Value = member.Contact.EmailAddress1
+                    };
+                    addOrUpdateContact.WorkPhone = new WorkPhone() { Value = member.Contact.WorkPhone ?? "-" };
+                    addOrUpdateContact.MobilePhone = new MobilePhone() { Value = member.Contact.HomeMobile ?? "-" };
+                    addOrUpdateContact.HomePhone = new HomePhone() { Value = member.Contact.HomePhone ?? "-" };
+
+                    policyUploadRequest.AddOrUpdateContact = addOrUpdateContact;
+
+                    //if (member.SubType.Label.Equals("Renewal"))
+                    //{
+                    //   await RenewPolicyAsync(policyUploadRequest, member);
+
+
+                    //}
+
+                    var policyDetails = new PolicyDetails();
+                    policyDetails.EffectiveDate = new EffectiveDate() { Value = member.ValidFrom.ToString("yyyyMMdd") };
+
+                    policyUploadRequest.PolicyDetails = policyDetails;
+
+                    var additionalDetails = new AdditionalDetails();
+                    additionalDetails.InsurerPolicyNo = new InsurerPolicyNo() { Value = member.Contact.ContactNumber };
+
+
+                    additionalDetails.ChildminderNanny = new ChildminderNanny() { Value = member.Grade.Name.GetValueFromDisplayName<Models.Acturis.Grade>() };
+
+                    additionalDetails.ERNNo = new ERNNo() { Value = member.Contact.EmployeeReferenceNumber ?? "-" };
+
+                    policyUploadRequest.AdditionalDetails = additionalDetails;
+
+
+                    var xml = Serialize(policyUploadRequest, typeof(PolicyUploadRequest));
+
+                    var content = new StringContent(xml, Encoding.UTF8, "application/xml");
+                    var response = await client.PostAsync(client.BaseAddress, content);
+                    var result = response.Content.ReadAsStringAsync().Result;
+
+                    if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase + ": Check Policy Upload Syntax. " + result);
+
+                    _logger.LogInformation($"Policy for {member.Contact.ContactNumber}, uploaded.");
+
+
+                    var policyUploadResponse = Deserialize(result, typeof(Response), "Response");
+
+                  
+                    //var policyUploadResponse = new Response()
+                    //{
+                    //    PolicyUploadJobID = "43e7ba5f-6110-4a83-884c-7cec7863f66a",
+                    //    EffectiveDate = "20220314",
+                    //    ConNumber = "CON-11332",
+
+                    //};
+
+
+
+
+                    var locatePolicy = await LocatePolicyUploadAsync(policyUploadResponse, member.Contact.ContactNumber);
+
+                    var locatePolicyResponse = await locatePolicyAsync(locatePolicy);
+
+                    var locatePartActivityResponse = await LocatePartActivityAsync(locatePolicyResponse);
+
+                    var acturisMember = await GetDocumentFromActivityAsync(locatePartActivityResponse);
+
+                    acturisMember.Id = member.Id;
+                    acturisMember.ContactNumber = member.Contact.ContactNumber;
+
+                    await _bluelightApiService.PostMembership(acturisMember);
+
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message + "\n" + member.Contact.ContactNumber + " policy was not uploaded");
+
+
+                    await _emailService.ReportUnsuccessfulUpload(member, ex.Message);
+                }
+
+            }
+
+
+
+          
+
+        }
+
+        public async Task UploadMtaPolicies()
+        {
+
+            var client = _httpClientFactory.CreateClient("ActurisPolicyUpload");
+
+
+            var members = await _bluelightApiService.GetNameChangeAsync();
+
+            var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-11375") || x.Contact.ContactNumber.Equals("CON-11370"));
+
+
+
+            var acturisMembers = new List<ActurisMembership>();
+
+            foreach (var member in filteredMembers)
+            {
+                try
+                {
+
+
 
                     var policyUploadRequest = new PolicyUploadRequest();
 
@@ -203,7 +225,9 @@ namespace Acturis.Service
                     {
                         Value = Convert.ToInt32(member.Contact.DateOfBirth.ToString("yyyyMMdd"))
                     };
-                    addOrUpdateContact.EmailAddress = new EmailAddress(){    Value = member.Contact.EmailAddress1
+                    addOrUpdateContact.EmailAddress = new EmailAddress()
+                    {
+                        Value = member.Contact.EmailAddress1
                     };
                     addOrUpdateContact.WorkPhone = new WorkPhone() { Value = member.Contact.WorkPhone ?? "-" };
                     addOrUpdateContact.MobilePhone = new MobilePhone() { Value = member.Contact.HomeMobile ?? "-" };
@@ -211,16 +235,18 @@ namespace Acturis.Service
 
                     policyUploadRequest.AddOrUpdateContact = addOrUpdateContact;
 
-                    /* Renewal part */
-                    var existingPolicy = new ExistingPolicy();
-                    existingPolicy.BusinessEvent = new BusinessEvent() { Value = 3 };
+                    
 
+                    var existingPolicy = new ExistingPolicy();
+                    existingPolicy.BusinessEvent = new BusinessEvent() { Value = 2 };
+                    existingPolicy.InsurerPolicyNo = new InsurerPolicyNo() { Value = member.Contact.ContactNumber };
                     policyUploadRequest.ExistingPolicy = existingPolicy;
 
                     var existingPolicyDetails = new ExistingPolicyDetails();
                     existingPolicyDetails.EffectiveDate = new EffectiveDate() { Value = member.ValidFrom.ToString("yyyyMMdd") };
-                    // existingPolicyDetails.ChildminderNanny = new ChildminderNanny() { Value = Models.Acturis.Grade.GetGrade()[member.Grade.Name] };
-                    existingPolicyDetails.TermEndDate = new TermEndDate() { Value = member.ValidTo.ToString("yyyyMMdd") };
+
+                    existingPolicyDetails.ChildminderNanny = new ChildminderNanny() { Value = member.Grade.Name.GetValueFromDisplayName<Models.Acturis.Grade>() };
+
 
                     policyUploadRequest.ExistingPolicyDetails = existingPolicyDetails;
 
@@ -231,58 +257,117 @@ namespace Acturis.Service
                     var response = await client.PostAsync(client.BaseAddress, content);
                     var result = response.Content.ReadAsStringAsync().Result;
 
-                    if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
+                    if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase + ": Check Policy Upload Syntax. " + result);
 
                     _logger.LogInformation($"Policy for {member.Contact.ContactNumber}, uploaded.");
 
+
                     var policyUploadResponse = Deserialize(result, typeof(Response), "Response");
-                    policyUploadResponse.EffectiveDate = policyUploadRequest.PolicyDetails.EffectiveDate.Value;
+                  
 
                     //var policyUploadResponse = new Response()
                     //{
-                    //    PolicyUploadJobID = "0c5dc717-0fb0-4114-a34f-2cb4212c7ff1",
-                    //    EffectiveDate = 20220303
+                    //    PolicyUploadJobID = "a0cbb7f3-ada4-4db0-a6ee-3992c3373b5d",
+                    //    EffectiveDate = "20220314",
+                    //    ConNumber = "CON-11333",
+
                     //};
 
 
-                    var locatePolicy = LocatePolicyUploadAsync(policyUploadResponse).GetAwaiter().GetResult();
-
-                    var locatePolicyResponse = locatePolicyAsync(locatePolicy).GetAwaiter().GetResult();
-
-                    var locatePartActivityResponse = LocatePartActivityAsync(locatePolicyResponse).GetAwaiter().GetResult();
-
-                    var acturisMember = GetDocumentFromActivityAsync(locatePartActivityResponse).GetAwaiter().GetResult();
 
 
-                    acturisMembers.Add(acturisMember);
+                    var locatePolicy = await LocatePolicyUploadAsync(policyUploadResponse, member.Contact.ContactNumber);
+
+                    var locatePolicyResponse = await locatePolicyAsync(locatePolicy);
+
+                    var locatePartActivityResponse = await LocatePartActivityAsync(locatePolicyResponse);
+
+                    var acturisMember = await GetDocumentFromActivityAsync(locatePartActivityResponse);
+
+                    acturisMember.Id = member.Id;
+                    acturisMember.ContactNumber = member.Contact.ContactNumber;
+
+                    await _bluelightApiService.PostMembership(acturisMember);
+
 
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message + "\n" + member.Contact.ContactNumber + " policy was not uploaded");
 
-                    // await _emailService.SendUnapprovedMembers(member, ex.Message);
+
+                    await _emailService.ReportUnsuccessfulUpload(member, ex.Message);
                 }
 
             }
 
 
 
-            return acturisMembers;
+           
 
         }
 
-        public async Task<List<string>> CancelPolicyAsync()
+        public async Task RenewPolicyAsync(PolicyUploadRequest policyUploadRequest, Bluelight member)
         {
 
             var client = _httpClientFactory.CreateClient("ActurisPolicyUpload");
 
 
-            var members = await _bluelightApiService.GetMembersAsync();
+            /* Renewal part */
+            var existingPolicy = new ExistingPolicy();
+            existingPolicy.BusinessEvent = new BusinessEvent() { Value = 3 };
+            existingPolicy.InsurerPolicyNo = new InsurerPolicyNo() { Value = member.Contact.ContactNumber };
+            policyUploadRequest.ExistingPolicy = existingPolicy;
+
+            var existingPolicyDetails = new ExistingPolicyDetails();
+            existingPolicyDetails.EffectiveDate = new EffectiveDate() { Value = DateTime.Now.ToString("yyyyMMdd") };
+
+            existingPolicyDetails.ChildminderNanny = new ChildminderNanny() { Value = member.Grade.Name.GetValueFromDisplayName<Models.Acturis.Grade>() };
+
+
+            policyUploadRequest.ExistingPolicyDetails = existingPolicyDetails;
+
+
+            var xml = Serialize(policyUploadRequest, typeof(PolicyUploadRequest));
+
+            var content = new StringContent(xml, Encoding.UTF8, "application/xml");
+            var response = await client.PostAsync(client.BaseAddress, content);
+            var result = response.Content.ReadAsStringAsync().Result;
+
+            if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
+
+            _logger.LogInformation($"Policy for {member.Contact.ContactNumber}, uploaded.");
+
+            var policyUploadResponse = Deserialize(result, typeof(Response), "Response");
+
+
+            var locatePolicy = await LocatePolicyUploadAsync(policyUploadResponse, member.Contact.ContactNumber);
+            var locatePolicyResponse = await locatePolicyAsync(locatePolicy);
+            var locatePartActivityResponse = await LocatePartActivityAsync(locatePolicyResponse);
+            var acturisMember = await GetDocumentFromActivityAsync(locatePartActivityResponse);
+
+            acturisMember.Id = member.Id;
+            acturisMember.ContactNumber = member.Contact.ContactNumber;
+
+            await _bluelightApiService.PostMembership(acturisMember);
+
+
+           
+
+        }
+
+        public async Task CancelPolicyAsync()
+        {
+
+            var client = _httpClientFactory.CreateClient("ActurisPolicyUpload");
+
+
+            var members = await _bluelightApiService.GetCancellationsAsync();
+            var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-11351"));
 
             var acturisMembers = new List<string>();
 
-            foreach (var member in members)
+            foreach (var member in filteredMembers)
             {
                 try
                 {
@@ -326,16 +411,17 @@ namespace Acturis.Service
 
                     policyUploadRequest.AddOrUpdateContact = addOrUpdateContact;
 
-                    /* Renewal part */
+
+
                     var existingPolicy = new ExistingPolicy();
-                    existingPolicy.BusinessEvent = new BusinessEvent() { Value = 3 };
+                    existingPolicy.BusinessEvent = new BusinessEvent() { Value = 4 };
+                    existingPolicy.InsurerPolicyNo = new InsurerPolicyNo() { Value = member.Contact.ContactNumber };
 
                     policyUploadRequest.ExistingPolicy = existingPolicy;
                     var existingPolicyDetails = new ExistingPolicyDetails();
                     existingPolicyDetails.EffectiveDate = new EffectiveDate() { Value = member.ValidFrom.ToString("yyyyMMdd") };
                     existingPolicyDetails.ChildminderNanny = new ChildminderNanny() { Value = EnumHelper.GetValueFromDisplayName<Models.Acturis.Grade>(member.Grade.Name) };
-                    existingPolicyDetails.TermEndDate = new TermEndDate() { Value = member.ValidTo.ToString("yyyyMMdd") };
-
+                   
                     policyUploadRequest.ExistingPolicyDetails = existingPolicyDetails;
 
 
@@ -348,7 +434,7 @@ namespace Acturis.Service
                     var policyUploadResponse = Deserialize(result, typeof(Response), "Response");
 
 
-                    policyUploadResponse.EffectiveDate = policyUploadRequest.PolicyDetails.EffectiveDate.Value;
+                   
 
                     //var policyUploadResponse = new Response()
                     //{
@@ -356,40 +442,43 @@ namespace Acturis.Service
                     //    EffectiveDate = 20220303
                     //};
 
+                    var locatePolicy = await LocatePolicyUploadAsync(policyUploadResponse, member.Contact.ContactNumber);
+                    var locatePolicyResponse = await locatePolicyAsync(locatePolicy);
 
-                    var locatePolicy = LocatePolicyUploadAsync(policyUploadResponse).GetAwaiter().GetResult();
+                    _logger.LogInformation($"Policy for {member.Contact.ContactNumber} cancelled");
 
-                    var locatePolicyResponse = locatePolicyAsync(locatePolicy).GetAwaiter().GetResult();
-
-                    // return something 
 
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message + "\n" + member.Contact.ContactNumber + " policy was not uploaded");
 
-                    // await _emailService.SendUnapprovedMembers(member, ex.Message);
+
+                    await _emailService.ReportUnsuccessfulUpload(member, ex.Message);
                 }
 
             }
 
 
-
-            return acturisMembers;
-
         }
 
-        public async Task<LocatePolicy> LocatePolicyUploadAsync(Response jobId)
+        public async Task<LocatePolicy> LocatePolicyUploadAsync(Response jobId, string conNumber)
         {
 
             var client = _httpClientFactory.CreateClient("ActurisPolicyUpload");
 
-            dynamic response = null;
+            Response response = null;
 
             do
             {
 
+
+
                 response = Deserialize(await client.GetStringAsync(client.BaseAddress + $"/{jobId.PolicyUploadJobID}"), typeof(Response), "Response");
+
+                //var taskDelay = Task.Delay((int)TimeSpan.FromSeconds(10).TotalSeconds);
+
+                //await taskDelay;
 
                 if (response.Status == "Error")
                 {
@@ -398,16 +487,19 @@ namespace Acturis.Service
                     throw new Exception(response.ErrorMessage);
 
 
-
                 }
 
                 _logger.LogInformation($"Policy upload status: {response.Status}");
 
-                //await Task.Delay((int)TimeSpan.FromSeconds(10).TotalSeconds);
+                //_logger.LogInformation("Attempting another request in 10 seconds...");
+
             }
             while (response.Status != "Complete");
 
-            _logger.LogInformation($"Policy Ref: {response.PolicyRef} for {jobId.ConNumber}");
+
+            _logger.LogInformation($"Policy upload Job Id: {jobId.PolicyUploadJobID}");
+
+            _logger.LogInformation($"Policy Ref: {response.VersionRef} for {conNumber}");
 
 
             return new LocatePolicy()
@@ -420,7 +512,7 @@ namespace Acturis.Service
                     },
                     LocatePolicySearchOnValue = new LocatePolicyMessageLocatePolicySearchOnValue()
                     {
-                        Value = Convert.ToUInt32(response.PolicyRef)
+                        Value = Convert.ToUInt32(response.VersionRef)
                     },
                     ProductTarget = new LocatePolicyMessageProductTarget()
                     {
@@ -440,7 +532,7 @@ namespace Acturis.Service
                     },
                     EffectiveDateFrom = new LocatePolicyMessageEffectiveDateFrom()
                     {
-                        Value = jobId.EffectiveDate
+                        Value = ""
                     },
                     EffectiveDateTo = new LocatePolicyMessageEffectiveDateTo()
                     {
@@ -505,7 +597,7 @@ namespace Acturis.Service
 
                 throw new Exception(result);
 
-           
+
 
             return Deserialize(result, typeof(LocatePolicyResponse), "LocatePolicyResponse");
 
@@ -533,7 +625,7 @@ namespace Acturis.Service
                     },
                     ActivityDateFrom = new LocatePartActivityMessageActivityDateFrom()
                     {
-                        Value = locatePolicyResponse.Message.EffectiveDate.Value
+                        Value = Convert.ToUInt32(DateTime.Now.ToString("yyyyMMdd"))
                     },
                     ActivityDateTo = new LocatePartActivityMessageActivityDateTo()
                     {
@@ -602,7 +694,7 @@ namespace Acturis.Service
                 }
             };
 
-           
+
 
             var xml = Serialize(locatePartActivity, typeof(LocatePartActivity));
 
@@ -631,12 +723,12 @@ namespace Acturis.Service
 
             dynamic member = null;
             dynamic documentFromActivityResponse = null;
-      
+
             _logger.LogInformation($"Getting documents...");
 
             foreach (var item in locatePartActivityResponse.Message)
             {
-               
+
                 var document = new GetDocumentFromActivity()
                 {
 
@@ -653,7 +745,7 @@ namespace Acturis.Service
                         }
                     }
                 };
-               
+
 
                 var xml = Serialize(document, typeof(GetDocumentFromActivity));
 
@@ -667,7 +759,6 @@ namespace Acturis.Service
 
                 documentFromActivityResponse = Deserialize(result, typeof(GetDocumentFromActivityResponse), "GetDocumentFromActivityResponse");
 
-                _logger.LogInformation($"{documentFromActivityResponse.Message.DocumentRef.Detail}");
 
                 string fileName = documentFromActivityResponse.Message.DocumentRef.Detail;
 
@@ -701,20 +792,12 @@ namespace Acturis.Service
             }
 
 
-            string certificateName = documentFromActivityResponse.Message.DocumentRef.Detail;
-
-
-
-            var words = certificateName.Split(' ');
-            var conNumber = string.Empty;
-
-            conNumber = words[words.Length - 2];
 
 
 
             member = new ActurisMembership()
             {
-                Id = conNumber,
+
                 Certificates = certificates,
 
 
@@ -727,17 +810,19 @@ namespace Acturis.Service
 
         public async Task SendApprovedMembersAsync()
         {
-            var members = await GetCertificatesAsync();
+           await UploadPoliciesAsync();
 
-            if (members.Any())
-            {
-                await _bluelightApiService.PostMembership(members);
+        }
 
+        public async Task UpdateMAsync()
+        {
+          await UploadMtaPolicies();
 
-            }
+           
 
 
         }
+
 
 
 

@@ -27,8 +27,10 @@ namespace Acturis
 
         private void OnTick(object sender, EventArgs args)
         {
-            _acturisApiService.SendApprovedMembersAsync().GetAwaiter().GetResult();
-           
+            //_acturisApiService.UploadPoliciesAsync().GetAwaiter().GetResult();
+            _acturisApiService.UploadMtaPolicies().GetAwaiter().GetResult();
+            //_acturisApiService.CancelPolicyAsync().GetAwaiter().GetResult();
+
         }
     }
 }

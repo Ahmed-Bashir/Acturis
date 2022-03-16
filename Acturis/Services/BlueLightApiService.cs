@@ -40,10 +40,10 @@ namespace Acturis.Services
 
         public async Task<List<Bluelight>> GetNameChangeAsync()
         {
-            //string dateFrom = DateTime.Today.AddDays(-14).ToString("yyyy-MM-dd");
+            //string dateFrom = DateTime.Now.ToString("yyyy-MM-dd");
             //string dateTo = DateTime.Now.ToString("yyyy-MM-dd");
-            string dateFrom = "2022-03-07";
-            string dateTo = "2022-03-07";
+            string dateFrom = "2022-03-20";
+            string dateTo = "2022-03-20";
 
             var client = _httpClientFactory.CreateClient("BluelightApi");
             var response = await client.GetAsync(client.BaseAddress + $"/api/v1/Acturis/Memberships/NameChange?dateFrom={dateFrom}&dateTo={dateTo}");
@@ -55,16 +55,34 @@ namespace Acturis.Services
 
         }
 
+        public async Task<List<Bluelight>> GetCancellationsAsync()
+        {
+            //string dateFrom = DateTime.Now.ToString("yyyy-MM-dd");
+            //string dateTo = DateTime.Now.ToString("yyyy-MM-dd");
+            string dateFrom = "2022-03-15";
+            string dateTo = "2022-03-15";
+
+            var client = _httpClientFactory.CreateClient("BluelightApi");
+            var response = await client.GetAsync(client.BaseAddress + $"/api/v1/Acturis/Memberships/Cancellations?dateFrom={dateFrom}&dateTo={dateTo}");
+
+            if (!response.IsSuccessStatusCode) return new List<Bluelight>();
+
+
+            return await response.Content.ReadFromJsonAsync<List<Bluelight>>();
+
+        }
+
         public async Task<List<Bluelight>> GetMembersAsync()
         {
-            //string dateFrom = DateTime.Today.AddDays(-14).ToString("yyyy-MM-dd");
+            //string dateFrom = DateTime.Now.ToString("yyyy-MM-dd");
             //string dateTo = DateTime.Now.ToString("yyyy-MM-dd");
-            string dateFrom = "2022-03-07";
-            string dateTo = "2022-03-07";
+            string dateFrom = "2022-03-20";
+            string dateTo = "2022-03-20";
 
             var client = _httpClientFactory.CreateClient("BluelightApi");
             var response = await client.GetAsync(client.BaseAddress + $"/api/v1/Acturis/Memberships?dateFrom={dateFrom}&dateTo={dateTo}");
 
+            
             if (!response.IsSuccessStatusCode) return new List<Bluelight>();
           
 
@@ -73,38 +91,35 @@ namespace Acturis.Services
         }
 
 
-        public async Task<Bluelight> GetMembershipIdAsync(string conNumber)
-        {
+        //public async Task<Bluelight> GetMembershipIdAsync(string conNumber)
+        //{
 
 
-            var client = _httpClientFactory.CreateClient("BluelightApi");
+        //    var client = _httpClientFactory.CreateClient("BluelightApi");
 
-            var response = await client.GetAsync(client.BaseAddress + $"/api/v1/Contacts/SearchByMembershipNumber?membershipNumber={conNumber}");
-            if (!response.IsSuccessStatusCode) return new Bluelight();
+        //    var response = await client.GetAsync(client.BaseAddress + $"/api/v1/Contacts/SearchByMembershipNumber?membershipNumber={conNumber}");
+        //    if (!response.IsSuccessStatusCode) return new Bluelight();
             
-            return await response.Content.ReadFromJsonAsync<Bluelight>();
+        //    return await response.Content.ReadFromJsonAsync<Bluelight>();
 
-        }
+        //}
 
 
-        public async Task PostMembership(List<ActurisMembership> acturisMemberships)
+        public async Task PostMembership(ActurisMembership acturisMembership)
         {
             var client = _httpClientFactory.CreateClient("BluelightApi");
             dynamic blResponse = null;
 
-           
 
             try
             {
-                foreach (var acturisMembership in acturisMemberships)
-                {
-                    var id = GetMembershipIdAsync(acturisMembership.Id).GetAwaiter().GetResult().CurrentMembership.Id;
+                  //var id = GetMembershipIdAsync(acturisMembership.Id).GetAwaiter().GetResult().CurrentMembership.Id;
 
-                    PostMembershipCertificates(acturisMembership.Certificates, id).GetAwaiter().GetResult();
+                   await PostMembershipCertificates(acturisMembership);
 
                     var data = new
                     {
-                        Id = id,
+                        Id = acturisMembership.Id,
 
                         ActurisIntegrationDate = acturisMembership.ActurisIntegrationDate
                     };
@@ -115,13 +130,23 @@ namespace Acturis.Services
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        _logger.LogError($"Unable to post member detials with Id:{id} - StatusCode: {response.ReasonPhrase}");
+                        _logger.LogError($"Unable to post {acturisMembership.ContactNumber} to Bluelight - StatusCode: {response.ReasonPhrase}");
 
-                        await _emailService.ReportError($"Unable to post member detials with Id:{id} - StatusCode: {response.ReasonPhrase}");
+                        await _emailService.ReportError($"Unable to post {acturisMembership.ContactNumber} to Bluelight - StatusCode: {response.ReasonPhrase}");
                     }
 
+                if (blResponse.Success == true)
+                {
+                    _logger.LogInformation($"Member with {acturisMembership.ContactNumber} posted to BlueLight. Success: {blResponse.Success}");
+                }
+                else
+                {
+                    _logger.LogError($"Unable to post member with {acturisMembership.ContactNumber} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+
+                    await _emailService.ReportError($"Unable to post member with {acturisMembership.ContactNumber} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
 
                 }
+
 
             }
             catch (Exception ex)
@@ -130,34 +155,24 @@ namespace Acturis.Services
                 await _emailService.ReportError(ex.Message);
             }
 
-            if (blResponse.Success == true)
-            {
-                _logger.LogInformation($"Member details posted to BlueLight. Success: {blResponse.Success}");
-            }
-            else
-            {
-                _logger.LogError($"Unable to post member detais to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
-
-                await _emailService.ReportError($"Unable to post member detais to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
-
-            }
+            
 
         }
 
 
-        public async Task PostMembershipCertificates(List<ActurisCertificate> acturisCertificates, string id)
+        public async Task PostMembershipCertificates(ActurisMembership acturisMembership)
         {
             var client = _httpClientFactory.CreateClient("BluelightApi");
             dynamic blResponse = null;
 
             try
             {
-                foreach (var acturisCertificate in acturisCertificates)
+                foreach (var acturisCertificate in acturisMembership.Certificates)
                 {
 
                     var data = new
                     {
-                        Id = id,
+                        Id = acturisMembership.Id,
                         Certificate_FileName = acturisCertificate.Certificate_FileName,
                         Certificate_FileContents = acturisCertificate.Certificate_FileContents
                     };
@@ -168,29 +183,30 @@ namespace Acturis.Services
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        _logger.LogError($"Unable to post certificate pertaining to Id:{id} - StatusCode: {response.ReasonPhrase}");
+                        _logger.LogError($"Unable to post {acturisCertificate.Certificate_FileName} pertaining to {acturisMembership.ContactNumber} - StatusCode: {response.ReasonPhrase}");
 
-                        await _emailService.ReportError($"Unable to post certificate pertaining to Id:{id} - StatusCode: {response.ReasonPhrase}");
+                        await _emailService.ReportError($"Unable to post {acturisCertificate.Certificate_FileName} pertaining to {acturisMembership.ContactNumber} - StatusCode: {response.ReasonPhrase}");
                     }
 
-                       
+                    if (blResponse.Success == true)
+                    {
+                        _logger.LogInformation($"{acturisMembership.ContactNumber}: {acturisCertificate.Certificate_FileName} posted to BlueLight. Success: {blResponse.Success}");
+                    }
+                    else
+                    {
+                        _logger.LogError($"Unable to post {acturisMembership.ContactNumber}: {acturisCertificate.Certificate_FileName} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+
+                        await _emailService.ReportError($"Unable to post {acturisMembership.ContactNumber}: {acturisCertificate.Certificate_FileName} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+                    }
+
+
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-            }
 
-
-            if (blResponse.Success == true)
-            {
-                _logger.LogInformation($"Certificates posted to BlueLight. Success: {blResponse.Success}");
-            }
-            else
-            {
-                _logger.LogError($"Unable to post certificates to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
-
-                await _emailService.ReportError($"Unable to post certificates to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+                await _emailService.ReportError(ex.Message);
             }
 
 

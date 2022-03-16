@@ -9,8 +9,10 @@ namespace Acturis.Interfaces
     public interface IBluelightApiService
     {
         Task<List<Bluelight>> GetMembersAsync();
-        Task PostMembership(List<ActurisMembership> acturisMemberships);
-        Task PostMembershipCertificates(List<ActurisCertificate> acturisCertificates, string Id);
-
+        Task<List<Bluelight>> GetNameChangeAsync();
+        Task<List<Bluelight>> GetCancellationsAsync();
+        Task PostMembership(ActurisMembership acturisMemberships);
+        Task PostMembershipCertificates(ActurisMembership acturisMembership);
+       
     }
 }

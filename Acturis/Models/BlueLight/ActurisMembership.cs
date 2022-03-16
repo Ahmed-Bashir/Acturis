@@ -9,6 +9,8 @@ namespace Acturis.Models.BlueLight
 
         public string Id { get; set; }
 
+        public string ContactNumber { get; set; }
+
         public List<ActurisCertificate> Certificates { get; set; }
         public string ActurisIntegrationDate { get; set; } = DateTime.Now.ToString("s");
     }

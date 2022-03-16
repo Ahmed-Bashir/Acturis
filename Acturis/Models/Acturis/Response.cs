@@ -33,10 +33,6 @@ namespace Acturis.Models
 		[XmlElement(ElementName = "PolicyRef")]
 		public int PolicyRef { get; set; }
 
-		
-		public string EffectiveDate { get; set; }
-		public string ConNumber { get; set; }
-
 		[XmlElement(ElementName = "RfqRef")]
 		public int RfqRef { get; set; }
 
