@@ -173,6 +173,8 @@ namespace Acturis.Models
 
 		[XmlElement(ElementName = "InsurerPolicyNo")]
 		public InsurerPolicyNo InsurerPolicyNo { get; set; }
+
+		
 	}
 
 	[XmlRoot(ElementName = "InsurerPolicyNo")]
@@ -227,6 +229,9 @@ namespace Acturis.Models
 
 		[XmlElement(ElementName = "ChildminderNanny")]
 		public ChildminderNanny ChildminderNanny { get; set; }
+
+		[XmlElement(ElementName = "ERNNo")]
+		public ERNNo ERNNo { get; set; }
 	}
 
 	[XmlRoot(ElementName = "PolicyUploadRequest")]

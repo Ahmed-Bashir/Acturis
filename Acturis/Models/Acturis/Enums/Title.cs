@@ -11,7 +11,7 @@ namespace Acturis.Models.Acturis
             Mrs = 7,
             Ms = 8,
             Miss = 3,
-
+            NotApplicable = 80
     }
     
 }

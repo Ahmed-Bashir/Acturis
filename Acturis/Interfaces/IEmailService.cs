@@ -9,7 +9,7 @@ namespace Acturis.Interfaces
     {
 
         Task ReportUnsuccessfulUpload(dynamic member, string error);
-        Task ReportError(string error);
+        Task Report(string error);
 
 
     }

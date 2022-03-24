@@ -20,6 +20,7 @@ namespace Acturis.Models
 
 		[XmlElement(ElementName = "PolicyUploadJobID")]
 		public string PolicyUploadJobID { get; set; }
+		public string ConNumber { get; set; }
 
 		[XmlElement(ElementName = "Status")]
 		public string Status { get; set; }

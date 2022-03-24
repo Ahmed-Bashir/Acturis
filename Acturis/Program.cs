@@ -130,14 +130,15 @@ namespace Acturis
             services.AddTransient<Application>();
             services.Configure<SmtpSetting>(config.GetSection(
                                    "smtpsettings"));
-            //cache token 
+
+            var appsettings = config.GetRequiredSection("Environment").Value.Equals("live") ? "appsettingsLive" : "appsettingsDev";
 
             services.AddHttpClient("ActurisGWS", client => 
             {
-                client.BaseAddress = new Uri(config.GetValue<string>($"appsettingsDev:ActurisGwsUrl"));
+                client.BaseAddress = new Uri(config.GetValue<string>($"{appsettings}:ActurisGwsUrl"));
                
                 
-                var authToken = Encoding.ASCII.GetBytes($"{config.GetValue<string>($"appsettingsDev:ActurisUserName")}:{config.GetValue<string>($"appsettingsDev:ActurisPassword")}");
+                var authToken = Encoding.ASCII.GetBytes($"{config.GetValue<string>($"{appsettings}:ActurisUserName")}:{config.GetValue<string>($"{appsettings}:ActurisPassword")}");
                
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
@@ -148,7 +149,7 @@ namespace Acturis
                 formData.Add(new KeyValuePair<string, string>("scopes", "quotes policy_upload gws"));
                 var content = new FormUrlEncodedContent(formData);
 
-                var response = client.PostAsync(config.GetValue<string>($"appsettingsDev:ActurisTokenUrl"), content).Result;
+                var response = client.PostAsync(config.GetValue<string>($"{appsettings}:ActurisTokenUrl"), content).Result;
                 var token = response.Content.ReadAsStringAsync().Result;
 
                 dynamic acturisResponse = JsonConvert.DeserializeObject(token);
@@ -162,10 +163,10 @@ namespace Acturis
 
             services.AddHttpClient("ActurisPolicyUpload", client =>
             {
-                client.BaseAddress = new Uri(config.GetValue<string>($"appsettingsDev:ActurisPolicyUploadUrl"));
+                client.BaseAddress = new Uri(config.GetValue<string>($"{appsettings}:ActurisPolicyUploadUrl"));
 
 
-                var authToken = Encoding.ASCII.GetBytes($"{config.GetValue<string>($"appsettingsDev:ActurisUserName")}:{config.GetValue<string>($"appsettingsDev:ActurisPassword")}");
+                var authToken = Encoding.ASCII.GetBytes($"{config.GetValue<string>($"{appsettings}:ActurisUserName")}:{config.GetValue<string>($"{appsettings}:ActurisPassword")}");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
@@ -176,7 +177,7 @@ namespace Acturis
                 formData.Add(new KeyValuePair<string, string>("scopes", "quotes policy_upload gws"));
                 var content = new FormUrlEncodedContent(formData);
 
-                var response = client.PostAsync(config.GetValue<string>($"appsettingsDev:ActurisTokenUrl"), content).Result;
+                var response = client.PostAsync(config.GetValue<string>($"{appsettings}:ActurisTokenUrl"), content).Result;
                 var token = response.Content.ReadAsStringAsync().Result;
 
                 dynamic acturisResponse = JsonConvert.DeserializeObject(token);
@@ -189,13 +190,13 @@ namespace Acturis
 
             services.AddHttpClient("BluelightApi", client =>
             {
-                client.BaseAddress = new Uri(config.GetValue<string>($"appsettingsDev:BluelightApiUrl"));
+                client.BaseAddress = new Uri(config.GetValue<string>($"{appsettings}:BluelightApiUrl"));
 
-                var authToken = Encoding.ASCII.GetBytes($"{config.GetValue<string>($"appsettingsDev:BluelightUserName")}:{config.GetValue<string>($"appsettingsDev:BluelightPassword")}");
+                var authToken = Encoding.ASCII.GetBytes($"{config.GetValue<string>($"{appsettings}:BluelightUserName")}:{config.GetValue<string>($"{appsettings}:BluelightPassword")}");
 
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
-                var token = client.GetStringAsync(config.GetValue<string>($"appsettingsDev:BluelightTokenUrl")).Result;
+                var token = client.GetStringAsync(config.GetValue<string>($"{appsettings}:BluelightTokenUrl")).Result;
 
 
 

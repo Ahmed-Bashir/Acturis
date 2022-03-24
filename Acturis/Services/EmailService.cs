@@ -40,7 +40,7 @@ namespace Acturis.Services
 
             template.AppendLine("The following member was not uploaded:");
             template.AppendLine(
-                 "<p>Id: @Model.Contact.ContactNumber </p>" +
+                 "<p>ConNumber: @Model.Contact.ContactNumber </p>" +
                  "<p>First name: @Model.Contact.FirstName </p>" +
                  "<p>Last name: @Model.Contact.LastName</p>" +
                   $"<p>Error: {error}</p>" 
@@ -67,7 +67,7 @@ namespace Acturis.Services
 
         }
 
-        public async Task ReportError(string error)
+        public async Task Report(string report)
         {
 
 
@@ -82,7 +82,7 @@ namespace Acturis.Services
              .To(smtpSetting.To)
              .CC(smtpSetting.CC)
              .Subject(smtpSetting.Subject)
-             .Body(error)
+             .Body(report)
              .SendAsync();
 
             }

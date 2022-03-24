@@ -10,11 +10,13 @@ namespace Acturis.Interface
 {
     public interface IActurisApiService
     {
-        Task UploadPoliciesAsync();
-        Task UploadMtaPolicies();
-        Task RenewPolicyAsync(PolicyUploadRequest policyUploadRequest, Bluelight member);
-        Task CancelPolicyAsync();
-        Task<LocatePolicy> LocatePolicyUploadAsync(Response jobId, string conNumber ); 
+       
+
+        Task PolicyUploadRequestAsync();
+        Task MTAPolicyUploadRequestAsync();
+        Task RenewalPolicyUploadRequestAsync();
+        Task CancellationPolicyUploadRequestAsync();
+        Task<LocatePolicy> LocatePolicyUploadAsync(Response jobId); 
         Task<LocatePolicyResponse> locatePolicyAsync(LocatePolicy locatePolicy);
         Task<LocatePartActivityResponse> LocatePartActivityAsync(LocatePolicyResponse locatePolicyResponse);
         Task<ActurisMembership> GetDocumentFromActivityAsync(LocatePartActivityResponse locatePartActivityResponse);
