@@ -16,7 +16,7 @@ namespace Acturis
         {
             _acturisApiService = acturisApiService;
             _isRunInProgress = false;
-            _timer = new Timer(TimeSpan.FromSeconds(10).TotalMilliseconds);
+            _timer = new Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
             _timer.Elapsed += OnTick;
         }
 
@@ -25,38 +25,27 @@ namespace Acturis
         public void Stop() => _timer.Stop();
 
         private async void OnTick(object sender, EventArgs args)
-        {
-
-          
-
+        { 
+         
             if (_isRunInProgress)
             {
-                //Console.WriteLine("Waiting for current job to finish before starting new.");
+              
                 return;
             }
 
             _isRunInProgress = true;
 
-            //Console.WriteLine("Starting new run.");
-
-            //Console.WriteLine("--1--");
             await _acturisApiService.PolicyUploadRequestAsync();
-            //await Task.Delay(10000);
 
-            ////Console.WriteLine("--2--");
-            //await _acturisApiService.RenewalPolicyUploadRequestAsync();
-            ////await Task.Delay(10000);
-
-            ////Console.WriteLine("--3--");
-            //await _acturisApiService.MTAPolicyUploadRequestAsync();
-            ////await Task.Delay(10000);
-
-            ////Console.WriteLine("--4--");
-            //await _acturisApiService.CancellationPolicyUploadRequestAsync();
+            await _acturisApiService.RenewalPolicyUploadRequestAsync();
+         
+            await _acturisApiService.MTAPolicyUploadRequestAsync();
+         
+            await _acturisApiService.CancellationPolicyUploadRequestAsync();
 
             _isRunInProgress = false;
 
-            // new Task(async () => await _acturisApiService.PolicyUploadRequestAsync().ContinueWith(async x => await _acturisApiService.RenewalPolicyUploadRequestAsync())).Start();
+           
         }
     }
 }

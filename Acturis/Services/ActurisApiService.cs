@@ -48,7 +48,7 @@ namespace Acturis.Service
 
             var members = await _bluelightApiService.GetMembersAsync();
 
-            var acturisMember = new ActurisMembership();
+          
 
             //var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-11432"));
 
@@ -107,7 +107,7 @@ namespace Acturis.Service
 
                         var locatePartActivityResponse = await LocatePartActivityAsync(locatePolicyResponse);
 
-                        acturisMember = await GetDocumentFromActivityAsync(locatePartActivityResponse);
+                        var acturisMember = await GetDocumentFromActivityAsync(locatePartActivityResponse);
 
                         acturisMember.Id = member.Id;
                         acturisMember.ContactNumber = member.Contact.ContactNumber;
@@ -318,8 +318,6 @@ namespace Acturis.Service
                         await _bluelightApiService.PostMembership(new ActurisMembership() { Id = member.Id, ContactNumber = member.Contact.ContactNumber, Certificates = new List<ActurisCertificate>() });
 
 
-
-
                     }
                     finally
                     {
@@ -494,9 +492,6 @@ namespace Acturis.Service
 
             do
             {
-
-
-
 
 
                 var result = await client.GetAsync(client.BaseAddress + $"/{jobId.PolicyUploadJobID}");
