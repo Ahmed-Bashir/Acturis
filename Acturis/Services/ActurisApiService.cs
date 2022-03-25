@@ -386,6 +386,8 @@ namespace Acturis.Service
                         var locatePolicy = await LocatePolicyUploadAsync(policyUploadResponse);
                         var locatePolicyResponse = await locatePolicyAsync(locatePolicy);
 
+                        await _bluelightApiService.PostMembership(new ActurisMembership() { Id = member.Id, ContactNumber = member.Contact.ContactNumber, Certificates = new List<ActurisCertificate>() });
+
                         _logger.LogInformation($"Cancellation upload for {member.Contact.ContactNumber} complete.\n.");
 
                         await _emailService.Report($"Cancellation upload for {member.Contact.ContactNumber} complete.");
@@ -805,11 +807,11 @@ namespace Acturis.Service
 
                 if (fileName.Contains("Public"))
                 {
-                    fileName = "PLICetificate.pdf";
+                    fileName = "PLICertificate.pdf";
                 }
                 else if (fileName.Contains("Employers"))
                 {
-                    fileName = "ELICetificate.pdf";
+                    fileName = "ELICertificate.pdf";
                 }
                 else
                 {

@@ -34,84 +34,50 @@ namespace Acturis
             var services = ConfigureServices();
             var serviceProvider = services.BuildServiceProvider();
             var config = LoadConfiguration();
-            var path = AppDomain.CurrentDomain.BaseDirectory + "ActurisLog.txt";
+            
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
 
+
             Log.Information("Application starting");
-
-            var topshelfExitCode = HostFactory.Run(configure =>
+            try
             {
-                configure.Service<Application>(x =>
+                var topshelfExitCode = HostFactory.Run(configure =>
                 {
-                    x.ConstructUsing(name => serviceProvider.GetService<Application>());
+                    configure.Service<Application>(x =>
+                    {
+                        x.ConstructUsing(name => serviceProvider.GetService<Application>());
 
-                    x.WhenStarted(application => application.Start());
-                    x.WhenStopped(application => application.Stop());
+                        x.WhenStarted(application => application.Start());
+                        x.WhenStopped(application => application.Stop());
+
+                    });
+
+                    configure.RunAsLocalSystem();
+                    configure.SetDisplayName("Acturis");
+                    configure.SetServiceName("Actuirs");
+                    configure.SetDescription("Provides Pacey members with Insurance");
                 });
 
-                configure.RunAsLocalSystem();
-                configure.SetDisplayName("Acturis");
-                configure.SetServiceName("Actuirs");
-                configure.SetDescription("Provides Pacey members with Insurance");
-            });
+                var exitCode = (int)Convert.ChangeType(topshelfExitCode, topshelfExitCode.GetTypeCode());
 
-            var exitCode = (int)Convert.ChangeType(topshelfExitCode, topshelfExitCode.GetTypeCode());
-            Environment.ExitCode = exitCode;
+                Environment.ExitCode = exitCode;
+            }catch (Exception ex)
+            {
+                Log.Information(ex.Message);
 
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
 
         }
 
 
-        //static async Task Main(string[] args)
-        //{
-        //    var services = ConfigureServices();
-        //    var serviceProvider = services.BuildServiceProvider();
-        //    await serviceProvider.GetService<Program>().Run();
-        //    var config = LoadConfiguration();
-
-        //    var path = AppDomain.CurrentDomain.BaseDirectory + "ActurisLog.txt";
-
-        //    Log.Logger = new LoggerConfiguration()
-        //        .ReadFrom.Configuration(config)
-        //        .Enrich.FromLogContext()
-        //        .WriteTo.Console()
-        //        .WriteTo.File(path)
-        //        .CreateLogger();
-
-        //    Log.Information("Application starting");
-        //}
-
-        //public async Task Run()
-        //{
-          
-
-        //    await _ActurisApiService.SendApprovedMembersAsync();
-
-        //    //var Ids = new List<string>()
-        //    //{
-        //    //    "4a58afe3-307c-4e8e-9239-64559e691009",
-        //    //    "03c98b24-b549-4ddc-b531-c16a06507e9d",
-        //    //    "f3ea5458-b3b6-4e3e-a66c-9c35ebbff4f6"
-
-        //    //};
-
-
-
-
-
-        //    //var jobIds = _ActurisApiService.TestJobsIDAsync(Ids).GetAwaiter().GetResult();
-
-        //    //var locatePolicies = _ActurisApiService.LocatePolicyUploadAsync(jobIds).GetAwaiter().GetResult();
-
-        //    //var locatePolicyResponses = _ActurisApiService.locatePolicyAsync(locatePolicies).GetAwaiter().GetResult();
-
-        //    //var locateActivityResponses =  await _ActurisApiService.LocatePartActivityAsync(locatePolicyResponses);
-
-        //    //await _ActurisApiService.GetDocumentFromActivityAsync(locateActivityResponses);
-        //}
+      
 
         private static IServiceCollection ConfigureServices()
         {

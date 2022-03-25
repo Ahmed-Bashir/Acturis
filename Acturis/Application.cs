@@ -1,4 +1,5 @@
 ﻿using Acturis.Interface;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
@@ -10,13 +11,15 @@ namespace Acturis
 
         private readonly Timer _timer;
         private readonly IActurisApiService _acturisApiService;
+        private readonly ILogger<Application> _logger;
         private bool _isRunInProgress;
 
-        public Application(IActurisApiService acturisApiService)
+        public Application(IActurisApiService acturisApiService, ILogger<Application> logger)
         {
             _acturisApiService = acturisApiService;
+            _logger = logger;
             _isRunInProgress = false;
-            _timer = new Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
+            _timer = new Timer(60000);
             _timer.Elapsed += OnTick;
         }
 
@@ -29,18 +32,20 @@ namespace Acturis
          
             if (_isRunInProgress)
             {
-              
+                _logger.LogInformation("Run in progress");
                 return;
             }
 
             _isRunInProgress = true;
 
+            _logger.LogInformation("I'm Alive!");
+
             await _acturisApiService.PolicyUploadRequestAsync();
 
             await _acturisApiService.RenewalPolicyUploadRequestAsync();
-         
+          
             await _acturisApiService.MTAPolicyUploadRequestAsync();
-         
+           
             await _acturisApiService.CancellationPolicyUploadRequestAsync();
 
             _isRunInProgress = false;
