@@ -42,8 +42,8 @@ namespace Acturis.Services
         {
             string dateFrom = DateTime.Now.ToString("yyyy-MM-dd");
             string dateTo = DateTime.Now.ToString("yyyy-MM-dd");
-            //string dateFrom = "2022-03-23";
-            //string dateTo = "2022-03-23";
+            //string dateFrom = "2022-03-31";
+            //string dateTo = "2022-03-31";
 
             var client = _httpClientFactory.CreateClient("BluelightApi");
             var response = await client.GetAsync(client.BaseAddress + $"/api/v1/Acturis/Memberships/NameChange?dateFrom={dateFrom}&dateTo={dateTo}");
@@ -76,8 +76,8 @@ namespace Acturis.Services
         {
             string dateFrom = DateTime.Now.ToString("yyyy-MM-dd");
             string dateTo = DateTime.Now.ToString("yyyy-MM-dd");
-            //string dateFrom = "2022-03-22";
-            //string dateTo = "2022-03-22";
+            //string dateFrom = "2022-04-01";
+            //string dateTo = "2022-04-01";
 
             var client = _httpClientFactory.CreateClient("BluelightApi");
             var response = await client.GetAsync(client.BaseAddress + $"api/v1/Acturis/Memberships?dateFrom={dateFrom}&dateTo={dateTo}");
@@ -118,20 +118,20 @@ namespace Acturis.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError($"Unable to post {acturisMembership.ContactNumber} to Bluelight - StatusCode: {response.ReasonPhrase}");
+                    _logger.LogError($"Unable to post {acturisMembership.ContactNumber} to /api/v1/Acturis/Memberships - StatusCode: {response.ReasonPhrase}");
 
                     await _emailService.Report($"Unable to post {acturisMembership.ContactNumber} to Bluelight - StatusCode: {response.ReasonPhrase}");
                 }
 
                 if (blResponse.Success == true)
                 {
-                    _logger.LogInformation($"{acturisMembership.ContactNumber} posted to BlueLight. Success: {blResponse.Success}");
+                    _logger.LogInformation($"{acturisMembership.ContactNumber} posted to /api/v1/Acturis/Memberships. Success: {blResponse.Success}");
                 }
                 else
                 {
-                    _logger.LogError($"Unable to post {acturisMembership.ContactNumber} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+                    _logger.LogError($"Unable to post {acturisMembership.ContactNumber} to /api/v1/Acturis/Memberships. ErrorMessage: {blResponse.ErrorMessage}");
 
-                    await _emailService.Report($"Unable to post {acturisMembership.ContactNumber} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+                    await _emailService.Report($"Unable to post {acturisMembership.ContactNumber} to /api/v1/Acturis/Memberships. ErrorMessage: {blResponse.ErrorMessage}");
 
                 }
 
@@ -174,20 +174,20 @@ namespace Acturis.Services
 
                         if (!response.IsSuccessStatusCode)
                         {
-                            _logger.LogError($"Unable to post {acturisCertificate.Certificate_FileName} - StatusCode: {response.ReasonPhrase}");
+                            _logger.LogError($"Unable to post {acturisCertificate.Certificate_FileName} to /api/v1/Acturis/MembershipCertificate - StatusCode: {response.ReasonPhrase}");
 
-                            await _emailService.Report($"Unable to post {acturisCertificate.Certificate_FileName} - StatusCode: {response.ReasonPhrase}");
+                            await _emailService.Report($"Unable to post {acturisCertificate.Certificate_FileName} to /api/v1/Acturis/MembershipCertificate - StatusCode: {response.ReasonPhrase}");
                         }
 
                         if (blResponse.Success == true)
                         {
-                            _logger.LogInformation($"{acturisCertificate.Certificate_FileName} posted to BlueLight. Success: {blResponse.Success}");
+                            _logger.LogInformation($"{acturisCertificate.Certificate_FileName} posted to /api/v1/Acturis/MembershipCertificate. Success: {blResponse.Success}");
                         }
                         else
                         {
-                            _logger.LogError($"Unable to post {acturisCertificate.Certificate_FileName} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+                            _logger.LogError($"Unable to post {acturisCertificate.Certificate_FileName} to /api/v1/Acturis/MembershipCertificate. ErrorMessage: {blResponse.ErrorMessage}");
 
-                            await _emailService.Report($"Unable to post {acturisCertificate.Certificate_FileName} to BlueLight. ErrorMessage: {blResponse.ErrorMessage}");
+                            await _emailService.Report($"Unable to post {acturisCertificate.Certificate_FileName} to /api/v1/Acturis/MembershipCertificate. ErrorMessage: {blResponse.ErrorMessage}");
                         }
 
 
@@ -199,6 +199,50 @@ namespace Acturis.Services
 
                 await _emailService.Report(ex.Message);
             }
+
+
+        }
+
+        public async Task ClearNameChange(ActurisMembership acturisMembership)
+        {
+            var client = _httpClientFactory.CreateClient("BluelightApi");
+            dynamic blResponse = null;
+
+            try
+            {
+
+
+               // var content = new StringContent(string., Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(client.BaseAddress + $"/api/v1/Acturis/ClearNameChange?membershipId={ acturisMembership.Id }", null);
+                blResponse = JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError($"Unable to post {acturisMembership.ContactNumber} to /api/v1/Acturis/ClearNameChange - StatusCode: {response.ReasonPhrase}");
+
+                    await _emailService.Report($"Unable to post {acturisMembership.ContactNumber} to /api/v1/Acturis/ClearNameChange - StatusCode: {response.ReasonPhrase}");
+                }
+
+                if (blResponse.Success == true)
+                {
+                    _logger.LogInformation($"{acturisMembership.ContactNumber} posted to /api/v1/Acturis/ClearNameChange. Success: {blResponse.Success}");
+                }
+                else
+                {
+                    _logger.LogError($"Unable to post {acturisMembership.ContactNumber} to /api/v1/Acturis/ClearNameChange. ErrorMessage: {blResponse.ErrorMessage}");
+
+                    await _emailService.Report($"Unable to post {acturisMembership.ContactNumber} to /api/v1/Acturis/ClearNameChange. ErrorMessage: {blResponse.ErrorMessage}");
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                await _emailService.Report(ex.Message);
+            }
+
 
 
         }

@@ -13,6 +13,7 @@ namespace Acturis.Interfaces
         Task<List<Bluelight>> GetCancellationsAsync();
         Task PostMembership(ActurisMembership acturisMemberships);
         Task PostMembershipCertificates(ActurisMembership acturisMembership);
-       
+        Task ClearNameChange(ActurisMembership acturisMembership);
+
     }
 }

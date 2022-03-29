@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Mail;
 using FluentEmail.Core;
 using FluentEmail.Smtp;
-using System.Text;
 using FluentEmail.Razor;
-using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Acturis.Interfaces;
 using System.Net;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using FluentEmail.Core.Models;
 
 namespace Acturis.Services
 {
@@ -77,10 +76,13 @@ namespace Acturis.Services
 
             try
             {
-                var email = await Email
+
+              var listOfAddress = smtpSetting.CC.Split(";").Select(ea => new Address { EmailAddress = ea }).ToList();
+              var email = await Email
              .From(smtpSetting.From)
              .To(smtpSetting.To)
-             .CC(smtpSetting.CC)
+             .CC(listOfAddress)
+            
              .Subject(smtpSetting.Subject)
              .Body(report)
              .SendAsync();
@@ -98,23 +100,32 @@ namespace Acturis.Services
 
         private SmtpSender GetSmtpSender()
         {
-            var sender = new SmtpSender(() => new SmtpClient(smtpSetting.SmtpHost)
-
+            try
             {
-                UseDefaultCredentials = true,
-                Credentials = new NetworkCredential()
+                var sender = new SmtpSender(() => new SmtpClient(smtpSetting.SmtpHost)
+
                 {
-                    UserName = smtpSetting.SmtpUser,
-                    Password = smtpSetting.SmtpPassword,
+                    UseDefaultCredentials = true,
+                    Credentials = new NetworkCredential()
+                    {
+                        UserName = smtpSetting.SmtpUser,
+                        Password = smtpSetting.SmtpPassword,
 
-                },
-                Port = smtpSetting.SmtpPort,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                EnableSsl = true,
+                    },
+                    Port = smtpSetting.SmtpPort,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    EnableSsl = true,
 
-            });
+                });
 
-            return sender;
+                return sender;
+            }catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+
+                return null;
+            }
+           
         }
 
     }

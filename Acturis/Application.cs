@@ -19,7 +19,8 @@ namespace Acturis
             _acturisApiService = acturisApiService;
             _logger = logger;
             _isRunInProgress = false;
-            _timer = new Timer(60000);
+
+            _timer = new Timer(10000) { AutoReset = true};
             _timer.Elapsed += OnTick;
         }
 
@@ -32,21 +33,21 @@ namespace Acturis
          
             if (_isRunInProgress)
             {
-                _logger.LogInformation("Run in progress");
+               // _logger.LogInformation("Run in progress");
                 return;
             }
 
             _isRunInProgress = true;
 
-            _logger.LogInformation("I'm Alive!");
+          //  _logger.LogInformation("I'm Alive!");
 
-            await _acturisApiService.PolicyUploadRequestAsync();
+           //await _acturisApiService.PolicyUploadRequestAsync();
 
-            await _acturisApiService.RenewalPolicyUploadRequestAsync();
+            //await _acturisApiService.RenewalPolicyUploadRequestAsync();
           
-            await _acturisApiService.MTAPolicyUploadRequestAsync();
+           await _acturisApiService.MTAPolicyUploadRequestAsync();
            
-            await _acturisApiService.CancellationPolicyUploadRequestAsync();
+            //await _acturisApiService.CancellationPolicyUploadRequestAsync();
 
             _isRunInProgress = false;
 

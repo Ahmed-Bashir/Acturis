@@ -10,10 +10,8 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using Acturis.Interface;
 using Acturis.Service;
-using System.Threading.Tasks;
 using Acturis.Interfaces;
 using Acturis.Services;
-using System.Text.RegularExpressions;
 using Topshelf;
 
 namespace Acturis
@@ -29,8 +27,7 @@ namespace Acturis
 
         private static void Main()
         {
-            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-
+           Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             var services = ConfigureServices();
             var serviceProvider = services.BuildServiceProvider();
             var config = LoadConfiguration();
@@ -42,6 +39,7 @@ namespace Acturis
 
 
             Log.Information("Application starting");
+
             try
             {
                 var topshelfExitCode = HostFactory.Run(configure =>
@@ -57,22 +55,20 @@ namespace Acturis
 
                     configure.RunAsLocalSystem();
                     configure.SetDisplayName("Acturis");
-                    configure.SetServiceName("Actuirs");
+                    configure.SetServiceName("Acturis");
                     configure.SetDescription("Provides Pacey members with Insurance");
                 });
 
                 var exitCode = (int)Convert.ChangeType(topshelfExitCode, topshelfExitCode.GetTypeCode());
 
                 Environment.ExitCode = exitCode;
+
             }catch (Exception ex)
             {
                 Log.Information(ex.Message);
 
             }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
+           
 
         }
 

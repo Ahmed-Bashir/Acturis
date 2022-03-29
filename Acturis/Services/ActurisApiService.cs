@@ -37,7 +37,7 @@ namespace Acturis.Service
 
         }
 
-        //mapping objects 
+
 
 
         public async Task PolicyUploadRequestAsync()
@@ -48,9 +48,10 @@ namespace Acturis.Service
 
             var members = await _bluelightApiService.GetMembersAsync();
 
-          
 
-            //var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-11432"));
+
+            var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-10004880") || x.Contact.ContactNumber.Equals("CON-00075694") || x.Contact.ContactNumber.Equals("CON-00005271") || x.Contact.ContactNumber.Equals("CON-00003747")
+            || x.Contact.ContactNumber.Equals("CON-00070243") || x.Contact.ContactNumber.Equals("CON-00189276") || x.Contact.ContactNumber.Equals("CON-00076718"));
 
             if (members.Any())
 
@@ -95,9 +96,10 @@ namespace Acturis.Service
 
                         //var policyUploadResponse = new Response()
                         //{
-                        //    PolicyUploadJobID = "43e7ba5f-6110-4a83-884c-7cec7863f66a",
-                        //    EffectiveDate = "20220314",
-                        //    ConNumber = "CON-11332",
+
+
+                        //    PolicyUploadJobID = "ea74f8c7-9a02-4522-9b62-ba6432b46174"
+
 
                         //};
 
@@ -118,10 +120,11 @@ namespace Acturis.Service
                         _logger.LogInformation($"Policy upload for {member.Contact.ContactNumber} complete.\n");
 
                         await _emailService.Report($"Policy upload for {member.Contact.ContactNumber} complete");
+
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.");
+                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.\n");
 
 
                         await _emailService.ReportUnsuccessfulUpload(member, ex.Message);
@@ -129,10 +132,7 @@ namespace Acturis.Service
                         await _bluelightApiService.PostMembership(new ActurisMembership() { Id = member.Id, ContactNumber = member.Contact.ContactNumber, Certificates = new List<ActurisCertificate>() });
 
                     }
-                    finally
-                    {
-                        Log.CloseAndFlush();
-                    }
+
 
 
                 }
@@ -140,7 +140,7 @@ namespace Acturis.Service
 
         }
 
-       
+
 
         public async Task MTAPolicyUploadRequestAsync()
         {
@@ -150,10 +150,10 @@ namespace Acturis.Service
 
             var members = await _bluelightApiService.GetNameChangeAsync();
 
-            //var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-11404"));
+            var filteredMembers = members.Where(x => x.Contact.ContactNumber.Equals("CON-11404"));
             //|| x.Contact.ContactNumber.Equals("CON-11372"));
 
-            
+
 
             if (members.Any())
 
@@ -218,6 +218,10 @@ namespace Acturis.Service
 
                         await _bluelightApiService.PostMembership(acturisMember);
 
+                        await _bluelightApiService.ClearNameChange(acturisMember);
+
+
+
                         _logger.LogInformation($"MTA policy upload for {member.Contact.ContactNumber} complete.\n");
 
                         await _emailService.Report($"MTA policy upload for {member.Contact.ContactNumber} complete.");
@@ -225,16 +229,12 @@ namespace Acturis.Service
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.");
+                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.\n");
 
 
                         await _emailService.ReportUnsuccessfulUpload(member, ex.Message);
 
                         await _bluelightApiService.PostMembership(new ActurisMembership() { Id = member.Id, ContactNumber = member.Contact.ContactNumber, Certificates = new List<ActurisCertificate>() });
-                    }
-                    finally
-                    {
-                        Log.CloseAndFlush();
                     }
 
 
@@ -254,13 +254,13 @@ namespace Acturis.Service
 
             var members = await _bluelightApiService.GetMembersAsync();
 
-           
+
 
             var filteredMembers = members.Where(x => x.SubType.Label.Equals("Renewal"));
 
             if (filteredMembers.Any())
 
-                
+
                 foreach (var member in filteredMembers)
                 {
                     try
@@ -310,7 +310,7 @@ namespace Acturis.Service
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.");
+                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.\n");
 
 
                         await _emailService.ReportUnsuccessfulUpload(member, ex.Message);
@@ -319,10 +319,7 @@ namespace Acturis.Service
 
 
                     }
-                    finally
-                    {
-                        Log.CloseAndFlush();
-                    }
+
 
                 }
 
@@ -395,17 +392,14 @@ namespace Acturis.Service
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.");
+                        _logger.LogError($"{ex.Message} {member.Contact.ContactNumber} policy upload failed.\n");
 
 
                         await _emailService.ReportUnsuccessfulUpload(member, ex.Message);
 
                         await _bluelightApiService.PostMembership(new ActurisMembership() { Id = member.Id, ContactNumber = member.Contact.ContactNumber, Certificates = new List<ActurisCertificate>() });
                     }
-                    finally
-                    {
-                        Log.CloseAndFlush();
-                    }
+
 
 
                 }
@@ -415,11 +409,8 @@ namespace Acturis.Service
 
         public PolicyUploadRequest AddOrUpdateContact(Bluelight member)
         {
-           
-            var policyUploadRequest = new PolicyUploadRequest();
 
-            var title = member.Contact.Title.Label.Equals("") ? "NotApplicable" : member.Contact.Title.Label;
-            //Console.WriteLine(Convert.ToInt32(Enum.Parse(typeof(Models.Acturis.Title), member.Contact.Title.Label) ?? 80));
+            var policyUploadRequest = new PolicyUploadRequest();
 
             policyUploadRequest.MappingID = "PibEmployersLiabilityPACEY";
 
@@ -429,9 +420,10 @@ namespace Acturis.Service
             {
                 Value = member.Contact.ContactNumber
             };
+            var title = member.Contact.Title.Label.Equals("") ? "NotApplicable" : member.Contact.Title.Label;
             addOrUpdateContact.ClientTitle = new ClientTitle()
             {
-                Value = Convert.ToInt32(Enum.Parse(typeof(Models.Acturis.Title), title)) 
+                Value = Convert.ToInt32(Enum.Parse(typeof(Models.Acturis.Title), title))
 
             };
             addOrUpdateContact.FullName = new FullName
@@ -475,7 +467,7 @@ namespace Acturis.Service
 
                 _logger.LogInformation($"Possible syntax error.");
 
-                throw new Exception(response.ReasonPhrase + ". " + result);
+                throw new Exception($"{response.ReasonPhrase} { result}.\n");
 
             }
 
@@ -498,7 +490,7 @@ namespace Acturis.Service
 
                 var result = await client.GetAsync(client.BaseAddress + $"/{jobId.PolicyUploadJobID}");
 
-               
+
 
                 if (result.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
                 {
@@ -507,8 +499,11 @@ namespace Acturis.Service
 
                 response = Deserialize(result.Content.ReadAsStringAsync().Result, typeof(Response), "Response");
 
-               
 
+                if (response.Status == null)
+                {
+                    continue;
+                }
 
                 //Response status code does not indicate success: 503 (Server Busy)
                 //You have exceed your Quota
@@ -529,15 +524,12 @@ namespace Acturis.Service
                 await Task.Delay(10000);
                 //await Task.Delay((int)TimeSpan.FromSeconds(10).TotalSeconds);
 
-                if (response.Status == null)
-                {
-                    continue;
-                }
+
 
 
             }
             while (response.Status != "Complete");
-            
+
 
 
 
@@ -546,73 +538,73 @@ namespace Acturis.Service
 
             return new LocatePolicy()
             {
-                Message = new LocatePolicyMessage()
+                Message = new Message()
                 {
-                    LocatePolicySearchOn = new LocatePolicyMessageLocatePolicySearchOn()
+                    LocatePolicySearchOn = new LocatePolicySearchOn()
+                    {
+                        Value = "1"
+                    },
+                    LocatePolicySearchOnValue = new LocatePolicySearchOnValue()
+                    {
+                        Value = response.VersionRef
+                    },
+                    ProductTarget = new ProductTarget()
+                    {
+                        Value = ""
+                    },
+                    PolicyStatusGroup = new PolicyStatusGroup()
+                    {
+                        Value = ""
+                    },
+                    PolicyStatus = new PolicyStatus()
+                    {
+                        Value = ""
+                    },
+                    PolicyBandStatus = new PolicyBandStatus()
+                    {
+                        Value = ""
+                    },
+                    EffectiveDateFrom = new EffectiveDateFrom()
+                    {
+                        Value = ""
+                    },
+                    EffectiveDateTo = new EffectiveDateTo()
+                    {
+                        Value = ""
+                    },
+                    OpenItemsOnlyIndicator = new OpenItemsOnlyIndicator()
+                    {
+                        Value = "5"
+                    },
+                    IncludeRemarketablePoliciesOnlyIndicator = new IncludeRemarketablePoliciesOnlyIndicator()
+                    {
+                        Value = "5"
+                    },
+                    IncludePoliciesToBeRenewedOnlyIndicator = new IncludePoliciesToBeRenewedOnlyIndicator()
+                    {
+                        Value = "5"
+                    },
+                    IncludeClaimLinkablePoliciesOnlyIndicator = new IncludeClaimLinkablePoliciesOnlyIndicator()
+                    {
+                        Value = "5"
+                    },
+                    IncludePolicyYearVersionsOnlyIndicator = new IncludePolicyYearVersionsOnlyIndicator()
+                    {
+                        Value = "5"
+                    },
+                    IncludeAddOnPoliciesIndicator = new IncludeAddOnPoliciesIndicator()
+                    {
+                        Value = "6"
+                    },
+                    IncludeNonSystemPoliciesIndicator = new IncludeNonSystemPoliciesIndicator()
+                    {
+                        Value = "5"
+                    },
+                    FirstResult = new FirstResult()
                     {
                         Value = 1
                     },
-                    LocatePolicySearchOnValue = new LocatePolicyMessageLocatePolicySearchOnValue()
-                    {
-                        Value = Convert.ToUInt32(response.VersionRef)
-                    },
-                    ProductTarget = new LocatePolicyMessageProductTarget()
-                    {
-                        Value = ""
-                    },
-                    PolicyStatusGroup = new LocatePolicyMessagePolicyStatusGroup()
-                    {
-                        Value = ""
-                    },
-                    PolicyStatus = new LocatePolicyMessagePolicyStatus()
-                    {
-                        Value = ""
-                    },
-                    PolicyBandStatus = new LocatePolicyMessagePolicyBandStatus()
-                    {
-                        Value = ""
-                    },
-                    EffectiveDateFrom = new LocatePolicyMessageEffectiveDateFrom()
-                    {
-                        Value = ""
-                    },
-                    EffectiveDateTo = new LocatePolicyMessageEffectiveDateTo()
-                    {
-                        Value = ""
-                    },
-                    OpenItemsOnlyIndicator = new LocatePolicyMessageOpenItemsOnlyIndicator()
-                    {
-                        Value = 5
-                    },
-                    IncludeRemarketablePoliciesOnlyIndicator = new LocatePolicyMessageIncludeRemarketablePoliciesOnlyIndicator()
-                    {
-                        Value = 5
-                    },
-                    IncludePoliciesToBeRenewedOnlyIndicator = new LocatePolicyMessageIncludePoliciesToBeRenewedOnlyIndicator()
-                    {
-                        Value = 5
-                    },
-                    IncludeClaimLinkablePoliciesOnlyIndicator = new LocatePolicyMessageIncludeClaimLinkablePoliciesOnlyIndicator()
-                    {
-                        Value = 5
-                    },
-                    IncludePolicyYearVersionsOnlyIndicator = new LocatePolicyMessageIncludePolicyYearVersionsOnlyIndicator()
-                    {
-                        Value = 5
-                    },
-                    IncludeAddOnPoliciesIndicator = new LocatePolicyMessageIncludeAddOnPoliciesIndicator()
-                    {
-                        Value = 6
-                    },
-                    IncludeNonSystemPoliciesIndicator = new LocatePolicyMessageIncludeNonSystemPoliciesIndicator()
-                    {
-                        Value = 5
-                    },
-                    FirstResult = new LocatePolicyMessageFirstResult()
-                    {
-                        Value = 1
-                    },
-                    LastResult = new LocatePolicyMessageLastResult()
+                    LastResult = new LastResult()
                     {
                         Value = 50
                     }
@@ -631,17 +623,11 @@ namespace Acturis.Service
 
             var xml = Serialize(locatePolicy, typeof(LocatePolicy));
 
-            var content = new StringContent(xml, Encoding.UTF8, "application/xml");
-            var response = await client.PostAsync(client.BaseAddress, content);
-            var result = response.Content.ReadAsStringAsync().Result;
-
-            if (!result.Contains("ContactRef"))
-
-                throw new Exception(result);
+            var response = await PostToActuris(xml, client);
 
 
 
-            return Deserialize(result, typeof(LocatePolicyResponse), "LocatePolicyResponse");
+            return Deserialize(response, typeof(LocatePolicyResponse), "LocatePolicyResponse");
 
         }
 
@@ -653,81 +639,81 @@ namespace Acturis.Service
 
             var locatePartActivity = new LocatePartActivity()
             {
-                Message = new LocatePartActivityMessage()
+                Message = new Message()
                 {
-                    ContactRef = new LocatePartActivityMessageContactRef()
+                    ContactRef = new ContactRef()
                     {
                         Value = locatePolicyResponse.Message.ContactRef.Value
                     },
 
-                    PartRef = new LocatePartActivityMessagePartRef()
+                    PartRef = new PartRef()
                     {
                         Value = locatePolicyResponse.Message.PartRef.Value
 
                     },
-                    ActivityDateFrom = new LocatePartActivityMessageActivityDateFrom()
+                    ActivityDateFrom = new ActivityDateFrom()
                     {
-                        Value = Convert.ToUInt32(DateTime.Now.ToString("yyyyMMdd"))
+                        Value = DateTime.Now.ToString("yyyyMMdd").ToString()
                     },
-                    ActivityDateTo = new LocatePartActivityMessageActivityDateTo()
+                    ActivityDateTo = new ActivityDateTo()
                     {
                         Value = ""
                     },
-                    ShowVersionsIndicator = new LocatePartActivityMessageShowVersionsIndicator()
+                    ShowVersionsIndicator = new ShowVersionsIndicator()
                     {
                         Value = 5
                     },
 
-                    ShowHiddenEntriesIndicator = new LocatePartActivityMessageShowHiddenEntriesIndicator()
+                    ShowHiddenEntriesIndicator = new ShowHiddenEntriesIndicator()
                     {
                         Value = 5
                     },
-                    ShowCommentaryEntriesOnlyIndicator = new LocatePartActivityMessageShowCommentaryEntriesOnlyIndicator()
+                    ShowCommentaryEntriesOnlyIndicator = new ShowCommentaryEntriesOnlyIndicator()
                     {
                         Value = 5
                     },
-                    ActivityType = new LocatePartActivityMessageActivityType()
+                    ActivityType = new ActivityType()
                     {
                         Value = ""
                     },
 
-                    FileType = new LocatePartActivityMessageFileType()
+                    FileType = new FileType()
                     {
                         Value = ""
                     },
-                    ActivityDirection = new LocatePartActivityMessageActivityDirection()
+                    ActivityDirection = new ActivityDirection()
                     {
                         Value = ""
                     },
-                    IncludeActivitiesOnThisPartOnlyIndicator = new LocatePartActivityMessageIncludeActivitiesOnThisPartOnlyIndicator()
+                    IncludeActivitiesOnThisPartOnlyIndicator = new IncludeActivitiesOnThisPartOnlyIndicator()
                     {
                         Value = 6
                     },
-                    IncludeViewOnWebOnlyIndicator = new LocatePartActivityMessageIncludeViewOnWebOnlyIndicator()
+                    IncludeViewOnWebOnlyIndicator = new IncludeViewOnWebOnlyIndicator()
                     {
                         Value = 5
                     },
-                    DetailSearchOnType = new LocatePartActivityMessageDetailSearchOnType()
+                    DetailSearchOnType = new DetailSearchOnType()
                     {
                         Value = ""
                     },
-                    DetailSearchOnValue = new LocatePartActivityMessageDetailSearchOnValue()
+                    DetailSearchOnValue = new DetailSearchOnValue()
                     {
                         Value = ""
                     },
-                    ActivitiesWithAttachmentsOnlyIndicator = new LocatePartActivityMessageActivitiesWithAttachmentsOnlyIndicator()
+                    ActivitiesWithAttachmentsOnlyIndicator = new ActivitiesWithAttachmentsOnlyIndicator()
                     {
                         Value = 6
                     },
-                    ActivityRef = new LocatePartActivityMessageActivityRef()
+                    ActivityRef = new ActivityRef()
                     {
                         Value = ""
                     },
-                    FirstResult = new LocatePartActivityMessageFirstResult()
+                    FirstResult = new FirstResult()
                     {
                         Value = 1
                     },
-                    LastResult = new LocatePartActivityMessageLastResult()
+                    LastResult = new LastResult()
                     {
                         Value = 50
                     }
@@ -740,18 +726,11 @@ namespace Acturis.Service
 
             var xml = Serialize(locatePartActivity, typeof(LocatePartActivity));
 
-            var content = new StringContent(xml, Encoding.UTF8, "application/xml");
-            var response = await client.PostAsync(client.BaseAddress, content);
-            var result = response.Content.ReadAsStringAsync().Result;
-
-
-            if (!result.Contains("ContactRef"))
-
-                throw new Exception(result);
+            var response = await PostToActuris(xml, client);
 
 
 
-            return Deserialize(result, typeof(LocatePartActivityResponse), "LocatePartActivityResponse");
+            return Deserialize(response, typeof(LocatePartActivityResponse), "LocatePartActivityResponse");
 
 
         }
@@ -775,13 +754,13 @@ namespace Acturis.Service
                 {
 
 
-                    Message = new GetDocumentFromActivityMessage()
+                    Message = new Message()
                     {
-                        ActivityRef = new GetDocumentFromActivityMessageActivityRef()
+                        ActivityRef = new ActivityRef()
                         {
                             Value = item.ActivityRef.Value
                         },
-                        DocumentRef = new GetDocumentFromActivityMessageDocumentRef()
+                        DocumentRef = new DocumentRef()
                         {
                             Value = item.DocumentRef.Value
                         }
@@ -791,15 +770,9 @@ namespace Acturis.Service
 
                 var xml = Serialize(document, typeof(GetDocumentFromActivity));
 
-                var content = new StringContent(xml, Encoding.UTF8, "application/xml");
-                var response = await client.PostAsync(client.BaseAddress, content);
-                var result = response.Content.ReadAsStringAsync().Result;
+                var response = await PostToActuris(xml, client);
 
-                if (!result.Contains("ContactRef"))
-
-                    throw new Exception(result);
-
-                documentFromActivityResponse = Deserialize(result, typeof(GetDocumentFromActivityResponse), "GetDocumentFromActivityResponse");
+                documentFromActivityResponse = Deserialize(response, typeof(GetDocumentFromActivityResponse), "GetDocumentFromActivityResponse");
 
 
                 string fileName = documentFromActivityResponse.Message.DocumentRef.Detail;
